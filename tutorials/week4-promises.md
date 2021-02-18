@@ -5,7 +5,7 @@ permalink: /tutorials/week4-promises
 parent: Tutorials
 ---
 
-This tutorial gives a basic introduction to promises and using axios to make http requests. 
+This tutorial gives a basic introduction to promises and using axios to make http requests.
 
 Contents:
 * [Promise Basics](#promise-basics)
@@ -18,9 +18,9 @@ Contents:
 
 # Promise Basics
 
-In Javascript, certain tasks can be performed asynchronously on background threads such as I/O operations, network requests, and timers. The different constructs available to handle such asynchronous events are callbacks, promises. Due to various problems associated with callbacks (such as callback hell), promises are the preferred construct for handling asynchronous behaviour. In simple terms, a promise is a function telling the caller, "I don't have what you need just yet, but I'm going to fetch that data and I *promise* to get back to you once I do; *then* can process the data as you see fit". There is also a reletively newer way of handling promises which processes them synchronously within the given closure called async/await.
+In Javascript, certain tasks can be performed asynchronously on background threads such as I/O operations, network requests, and timers. The different constructs available to handle such asynchronous events are callbacks and promises. Due to various problems associated with callbacks (such as callback hell), promises are the preferred construct for handling asynchronous behaviour. In simple terms, a promise is a function telling the caller, "I don't have what you need just yet, but I'm going to fetch that data and I *promise* to get back to you once I do; *then*, you can process the data as you see fit". There is also a reletively newer way of handling promises that processes them synchronously within the given closure called async/await.
 
-Looking at the code examples below should give a comparison between synchronous and asynchronous behaviour.
+Looking at the code examples below should give a comparison between synchronous and asynchronous behavior.
 
 - Example: Synchronous code:
 - ```JS
@@ -79,11 +79,11 @@ There are 2 key parts we need to implement in this application:
    - Axios is already installed in the project.
       - this can be done using `*npm install --save axios*` or `*yarn add axios --save*`
    - We need an API key for the youtube API.
-      - Instructions for the same are given in the section [Generating Your Own API Key](#generate-api-key). 
+      - Instructions for the same are given in the section [Generating Your Own API Key](#generate-api-key).
 
 # Implementing Video Search
 
-As we know, at present our application neither shows any video nor does it show any search results. Let us change that.
+At present, our application neither shows any video, nor does it show any search results. Let us change that.
 
 - Navigate to the src directory and open the file "App.tsx".
 - Notice a function on line 13 called "searchYoutubeVideos".
@@ -249,7 +249,7 @@ In this section, let us implement the comments section by fetching comments rela
             }
          ]
       }
-6. Next we need to extract the commments and assign them to the comments variable. Let us use the async/await syntax as below: 
+6. Next we need to extract the commments and assign them to the comments variable. Let us use the async/await syntax as below:
    - ```JS
       const commentThreads = await axios.get('https://www.googleapis.com/youtube/v3/commentThreads', {
         params: {
@@ -260,10 +260,10 @@ In this section, let us implement the comments section by fetching comments rela
         }
       });
       const comments = commentThreads.data.items.map(comment => { return {
-          textDisplay: comment.snippet.topLevelComment.snippet.textDisplay, 
+          textDisplay: comment.snippet.topLevelComment.snippet.textDisplay,
           id: comment.snippet.topLevelComment.id,
           img: comment.snippet.topLevelComment.snippet.authorProfileImageUrl,
-          author: comment.snippet.topLevelComment.snippet.authorDisplayName, 
+          author: comment.snippet.topLevelComment.snippet.authorDisplayName,
         };
       });
       this.setState({ comments: comments });
@@ -320,7 +320,7 @@ We can configure axios to use a default base configuration for all requests. Thi
       });
    - Now we have an axios client with default parameters configured. Let us use this in our code.
 5. Navigate to the src directory and open the file "App.tsx".
-   - Notice the import statement for youtube on line 8. 
+   - Notice the import statement for youtube on line 8.
    - The default configured client is already imported. Let us use this instead of axios.
 6. Replace the call to `axios.get('https://www.googleapis.com/youtube/v3/search')`:
     - From:
@@ -344,7 +344,7 @@ We can configure axios to use a default base configuration for all requests. Thi
 
 # Generating Your Own API Key
 
-In this tutorial, we are using the Youtube API v3, provided by google. In order to use this, Google provides a free API key which can be used to make 10,000 requests per day. This tutorial also assumes you have a google account, if you do not have one, please create one before you proceed.
+In this tutorial, we are using the Youtube API v3, provided by Google. In order to use this, Google provides a free API key which can be used to make 10,000 requests per day. This tutorial also assumes you have a google accounts if you do not have one, please create one before you proceed.
 
 ## Steps
 
@@ -384,4 +384,3 @@ In this tutorial, we are using the Youtube API v3, provided by google. In order 
 8. Click on "what credentials do I need?" and your key is ready!
    - ![image](./assets/week4-promises/credentials-ready.PNG)
 9. Copy this key for use in your applications.
-
