@@ -10,8 +10,9 @@ This tutorial covers the basics on unit testing with Jest. By the end of this tu
 Contents:
 * [Unit Testing Basics](#unit-testing-basics)
 * [Spies, Stubs, and Mocks](#spies-stubs-mocks)
-* [Handling Promises in Tests](#handling-promises-in-tests)
 * [Mocking Timers](#mocking-timers)
+* [Handling Promises in Tests](#handling-promises-in-tests)
+* [General Guidelines For Writing Tests](#guidelines)
 
 # Unit Testing Basics
 
@@ -404,7 +405,214 @@ Using a stub in our example simply prevent console.log() from being executed sin
     });
   ```
 
+# Handling Timers
+
+There are many instances where we use timer related functions such as setTimeout() and setInterval(), which can be difficult to test since they rely on actual passage of time. Similarly, we may use new Date() in our code to get the current date, the value of which would change every second and is not ideal for testing. To deal with these issues, jest provides us with fake timers.
+
+Let us assume we have to check if a function was called by a setTimeout as shown below:
+
+- ```ts
+
+    class FakeTimersExample {
+
+      public runTimer() {
+        setTimeout(this.callback, 1000);
+      }
+
+      private callback() {
+        // does something
+      }
+
+    }
+
+  ```
+
+Although not recommended, let us use this example to check how we can test private methods if required. This can be handy if public functions just call throgh and all logic is contained within the private method. We can do this as shown below:
+
+- ```ts
+
+    describe('FakeTimersExample', () => {
+
+      const fakeTimersExample;
+
+      beforeAll(() => {
+        fakeTimersExample = new FakeTimersExample();
+      });
+
+      describe('runTimer()', () => {
+
+        beforeEach(() => {
+          jest.useFakeTimers(); // Mocks all timers
+        });
+
+        afterEach(() => {
+          jest.runOnlyPendingTimers(); // Runs any pending timers to completion.
+          jest.useRealTimers(); // Restores the timers.
+        });
+
+        it('should invoke the callback after 1 sec', () => {
+
+          const callbackStub = jest.spyOn(<any>fakeTimersExample, 'callback').mockImplementation();
+
+          fakeTimersExample.runTimer();
+          expect(callbackStub).not.toHaveBeenCalled();
+
+          jest.advanceTimersByTime(1000); // Simulates passage of 1 sec.
+          // jest.runAllTimers(); // Runs all timers to completion. Can be used instead of above statement.
+
+          expect(callbackStub).toHaveBeenCalled();
+
+        });
+
+      });
+
+      describe('[private] callback()', () => {
+
+        it('should do something', () => {
+
+          fakeTimersExample['callback'](); // Using array syntax preserves type information 
+                                           // without complaining about property access violation.
+
+          // expect what we expect it to do.
+
+        });
+
+      });
+
+
+    });
+
+  ```
+
+Another important aspect of Fake Timers is mocking the Date object in JavaScript. This can be done as below:
+
+- ```ts
+
+    describe('SomethingWhichCallsNewDate()', () => {
+
+      beforeEach(() => {
+        jest.useFakeTimers('modern');
+        jest.setSystemTime(new Date('2021-02-20')); // Sets the date to 20th Feb 2021.
+      });
+
+      afterEach(() => {
+        jest.useRealTimers(); // Restores the timers.
+      });      
+
+      it('Should return current date as Feb 20th, 2021', () => {
+
+        expect(new Date()).toEqual(new Date('2021-02-20'));
+
+      });
+
+    });
+
+  ```
+
 # Handling Promises in Tests
 
+In previous tutorials, we have used Axios to make http requests which return promises. This is how we can write tests for axios requests. Consider the below example:
 
-# Handling Timers
+- ```ts
+
+    class HttpService {
+
+      getData(): Promise<any> {
+        return axios.get('/myUrl');
+      }
+
+    }
+
+  ```
+
+We can test the above code as follows:
+
+- ```ts
+
+    // Assuming we have done the setup as in previous tests
+
+    it('should invoke axios.get() with "myUrl"', () => {
+
+      const getSpy = jest.spyOn(axios, 'get').mockResolvedValue({status: 200, data: {}});
+
+      const response = await httpService.getData();
+
+      expect(getSpy).toHaveBeenCalledWith('myUrl');
+
+    });
+
+    it('should return the status as 200', async () => {
+
+      const getStub = jest.spyOn(axios, 'get').mockResolvedValue({status: 200, data: {}});
+
+      const response = await httpService.getData();
+
+      expect(response.status).toEqual(200);
+
+      getStub.mockRestore();
+
+    });
+
+  ```
+
+*Note:* You can return different values for subsequent calls to a stub.
+
+Ocassionally, you may run into situations where an http request is made but no promise is returned. This is often found in cases on "fire and forget" calls, or a central store with an Observable pattern implementation (Redux with react). We cannot await a function which does not return a promise. However, we can use fake timers to simulate passage of time to test such asynchronous behaviour. Consider the example below:
+
+- ```ts
+
+    class HttpService {
+
+      getData(): any {
+        axios.get('/myUrl')
+          .then((res) => {
+            Store.addData(data);
+          });
+      }
+
+    }
+
+  ```
+
+We can test the above functionality as follows:
+
+- ```ts
+
+    it('should set the data in store', async () => {
+
+      const addDataStub = jest.spyOn(Store, 'addData').mockImplementation();
+      const getStub = jest.spyOn(axios, 'get').mockResolvedValue({status: 200, data: {}});
+      jest.useFakeTimers();
+
+      httpService.getData();
+      jest.runAllTimers();
+      await Promise.resolve();
+
+      expect(addDataStub).toHaveBeenCalledWith({});
+
+      addDataStub.mockRestore();
+      getStub.mockRestore();
+      jest.useRealTimers();
+
+    });
+
+  ```
+
+# General Guidelines For Writing Tests
+
+1. Write tests based on the expected behavior, not based on the interpretation/implementation of it.
+2. Test assertion (expect) should match the test description.
+3. Each spec should test only 1 thing (preferably with 1 assertion per test).
+4. Organize tests using suites (Each method having it's own suite).
+5. Use setup and teardown functions to reduce code duplicity.
+6. Code duplicity in tests is preferred over complicated logic to reduce it. 
+   - If your tests need tests, they have no value.
+7. Cover the happy path for your code first.
+   - Follow up with edge cases.
+   - End with error scenarios.
+8. Mock/Stub all external dependencies.
+   - Clear the mocks after each test.
+9. If large test data is being used, ensure clean-up after tests to prevent memory leaks.
+10. Code coverage is a deceptive measure. 100% coverage does not mean 100% tested code.
+11. A well designed test suite improves the quality and reliability of code.
+12. A well designed test suite can serve as code documentation.
