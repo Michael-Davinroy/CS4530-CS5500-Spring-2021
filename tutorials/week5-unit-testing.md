@@ -16,7 +16,7 @@ Contents:
 
 # Unit Testing Basics
 
-For understanding the basics on unit testing, let us assume we have a file called calculator.ts present in the directory src/services/math/calculator.ts. Let us consider this file contains a class called Calculator, with a method for add() as below:
+To understand the basics of unit testing, let us assume we have a file called calculator.ts present in the directory src/services/math/calculator.ts. Let us assume this file contains a class called Calculator with a method for add() defined as shown below:
 - ```ts
     // Contents of src/services/math/calculator.ts
 
@@ -48,12 +48,12 @@ Syntax:
     });
   ```
 
-Suites can be used make debugging easier in large test suites. Here is one recommended suite hierarchy:
+Suites can be used to make debugging easier in large test suites. Here is one recommended suite hierarchy:
 - Top level describe should contain the file path after src.
-- Second descrbe should contain the name of the Class/File being tested.
-- Other describe blocks should contain the name of the function being tested.
+- Second describe should contain the name of the Class/File being tested.
+- Subsequent describe blocks should contain the name of the function being tested.
 
-Thus, the test file for the above example would look as follows:
+Using this hierarchy, the test file for the above example would look as follows:
 - ```ts
     describe('services > math', () => {
       describe('Calculator', () => {
@@ -69,7 +69,7 @@ Thus, the test file for the above example would look as follows:
 
 ## Specs
 
-A spec is an actual test (which executed some code and asserts some result). A test is created using the keyword `it()` or `test()`. Similar to `describe()`, `it()` takes 2 arguments, first being the description of the test, and the second being a callback. Generally, we want to describe what the code *should* do in the description of `it()` and assert the same within the test. Each test can be broken down into 3 parts (Assemble, Act, Assert) which makes up the AAA pattern. Optionally, there may be a clean-up/teardown step after the assert.
+A spec is an actual test that executes some code and asserts some result. A test is created using the keyword `it()` or `test()`. Similar to `describe()`, `it()` takes 2 arguments, first being the description of the test, and the second being a callback. Generally, we want to describe what the code *should* do in the description of `it()` and assert the described behavior within the test. Each test can be broken down into 3 parts (Assemble, Act, Assert) which makes up the AAA pattern. Optionally, there may be a clean-up/teardown step after the assert.
 
 Syntax:
 - ```ts
@@ -79,7 +79,7 @@ Syntax:
   ```
 
 Let us write a simple test for our add() method to check 1 + 1 = 2.
-Let us start by adding a spec to the suite we created previously.
+We start by adding a spec to the suite we created previously.
 
 - ```ts
     describe('services > math', () => {
@@ -168,7 +168,7 @@ In our example, we will invoke the add() method with inputs (1, 1) and get the r
 
 ### Assert
 
-Assertion is a statement which validates the behaviour of our code by comparing the actual result against the expected results. There are many assertions provided by Jest and some useful assertions we will use throughout our tests are below:
+Assertion is a statement which validates the behaviour of our code by comparing the actual result against the expected results. There are many assertions provided by Jest and some useful assertions we will use throughout our tests. Some of these assertions are listed below:
 - `expect(actual).toEqual(expected)` // Expects both entities to have the same value.
 - `expect(actual).toBe(expected)` // Expects both entities to be the same.
 - `expect(spy/stub/mock).toHaveBeenCalled()` // Expects a function being spied/stubbed/mocked to be invoked.
@@ -207,7 +207,7 @@ In our example, we can use the .toEqual() matcher.
 
 ## Setup and Teardown
 
-Often in tests, we need some things to happen before a test actually runs and some things after it. This may include resetting/initializing values, setting up test data, setting up spies/stubs/mocks, or cleaning up variables after a test, and resetting spies/stubs/mocks. Sometimes these setps may need to be repeated for each test. This is where the setup and teardown can be especially useful.
+Often in tests, we need some things to happen before a test actually runs and some things after it. This may include resetting/initializing values, setting up test data, setting up spies/stubs/mocks, cleaning up variables after a test, or resetting spies/stubs/mocks. Sometimes these steps may need to be repeated for each test. This is where the setup and teardown can be especially useful.
 
 Jest Provides 2 methods for setup and 2 methods for teardown:
 - beforeAll(): Runs one time before all the tests in a suite.
@@ -298,11 +298,11 @@ Let us add another test to cover a different scenario, such as adding negative n
 
 # Spies, Stubs, and Mocks
 
-As a project grows, so do the interdependencies in the project. A function under test can have dependencies from various external entities, this may include other functions, network requests, database connections, of built-in connections. Spies, Stubs, and Mocks are ways of dealing with such external dependencies. You can read more on what you can do with spies/stubs/mocks [here](https://jestjs.io/docs/en/mock-function-api)
+As a project grows, so do the interdependencies in the project. A function under test can have dependencies from various external entities. This may include other functions, network requests, database connections, or built-in connections. Spies, Stubs, and Mocks are ways of dealing with such external dependencies. You can read more on what you can do with spies/stubs/mocks [here](https://jestjs.io/docs/en/mock-function-api)
 
 ## Spy
 
-A spy is a watcher on a function which tracks various proterties of the function being spied on. This can return information such as whether a function was invoked, how many times it was invoked, and what argument it was invoked with. A spy on a function is created using the syntax `const spy = jest.spyOn(object, 'methodName');` 
+A spy is a watcher on a function which tracks various properties of the function being spied on. This can return information such as whether a function was invoked, how many times it was invoked, and what argument it was invoked with. A spy on a function is created using the syntax `const spy = jest.spyOn(object, 'methodName');` 
 
 *Note:* The function being spied on actually executes.
 
@@ -378,7 +378,7 @@ In our example, if we wanted to replace the behavior of console.log(), we can do
 
 ## Stub
 
-A stub is a special kind of mock which does not require an alternate implementation, but instead returns some value which we specify. When a stub gets invoked, it does not invoke the actually function, but returns the desired value instead. The syntax is as below: 
+A stub is a special kind of mock which does not require an alternate implementation, but instead returns some value which we specify. When a stub gets invoked, it does not invoke the actual function, but returns the desired value instead. The syntax is as below: 
 - ```ts
     spy.mockReturnValue(someValue);
   ```
@@ -389,7 +389,7 @@ To return a promise, we can use:
   ```
 This can be especially handy when stubbing Axios requests.
 
-Using a stub in our example simply prevent console.log() from being executed since it does not return a value anyway.
+Using a stub in our example simply prevents console.log() from being executed since it does not return a value anyway.
 - ```ts
     it('should invoke console.log() with the result 2 for inputs 1 and 1', () => {
 
@@ -427,7 +427,7 @@ Let us assume we have to check if a function was called by a setTimeout as shown
 
   ```
 
-Although not recommended, let us use this example to check how we can test private methods if required. This can be handy if public functions just call throgh and all logic is contained within the private method. We can do this as shown below:
+Although not recommended, let us use this example to check how we can test private methods if required. This can be handy if public functions just call through and all logic is contained within the private method. We can do this as shown below:
 
 - ```ts
 
@@ -511,7 +511,7 @@ Another important aspect of Fake Timers is mocking the Date object in JavaScript
 
 # Handling Promises in Tests
 
-In previous tutorials, we have used Axios to make http requests which return promises. This is how we can write tests for axios requests. Consider the below example:
+In previous tutorials, we have used Axios to make http requests which return promises. This is how we can write tests for axios requests. Consider the example below:
 
 - ```ts
 
