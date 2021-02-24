@@ -16,7 +16,7 @@ Contents:
 
 # Unit Testing Basics
 
-To understand the basics of unit testing, let us assume we have a file called calculator.ts present in the directory src/services/math/calculator.ts. Let us assume this file contains a class called Calculator with a method for add() defined as shown below:
+To understand the basics of unit testing, let us look at the file called 'calculator.ts' present in the directory src/services/math/. This file contains a class called Calculator with a method for add() defined as shown below:
 - ```ts
     // Contents of src/services/math/calculator.ts
 
@@ -31,7 +31,7 @@ To understand the basics of unit testing, let us assume we have a file called ca
     }
   ```
 
-Let us write some tests for this code using jest.
+Let us write some tests for this code using jest. The test code will go into a file in the same directory titled 'calculator.spec.ts'. Create this file now. This pattern of 'file-name.spec.ts' is how you should name all of your test files when using jest.  
 
 ## Suite
 
