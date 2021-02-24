@@ -35,8 +35,8 @@ Let us write some tests for this code using jest.
 
 ## Suite
 
-All spec/test files start with a suite. A suite is a collection of tests (or a logical grouping of tests). In jest, a suite is created by using the function `describe()`. The suite takes 2 arguments, 1st being the description of the suite, and the second being a callback function. Additionally, suites can be nested to form logical groups.
-Suites can further be broken down into 3 components which we will explore in detail shortly:
+All spec/test files start with a suite. A suite is a collection of tests (or a logical grouping of tests). In jest, a suite is created by using the function `describe()`. The suite takes 2 arguments: the 1st being the description of the suite and the second being a callback function. Additionally, suites can be nested to form logical groups.
+Suites can further be broken down into 3 components that we will explore in detail shortly:
 1. Setup
 2. Teardown
 3. Test
@@ -48,7 +48,7 @@ Syntax:
     });
   ```
 
-Suites can be used to make debugging easier in large test suites. Here is one recommended suite hierarchy:
+Suites can be used to make debugging easier when you are using a large number of tests. Here is one recommended suite hierarchy:
 - Top level describe should contain the file path after src.
 - Second describe should contain the name of the Class/File being tested.
 - Subsequent describe blocks should contain the name of the function being tested.
@@ -69,7 +69,7 @@ Using this hierarchy, the test file for the above example would look as follows:
 
 ## Specs
 
-A spec is an actual test that executes some code and asserts some result. A test is created using the keyword `it()` or `test()`. Similar to `describe()`, `it()` takes 2 arguments, first being the description of the test, and the second being a callback. Generally, we want to describe what the code *should* do in the description of `it()` and assert the described behavior within the test. Each test can be broken down into 3 parts (Assemble, Act, Assert) which makes up the AAA pattern. Optionally, there may be a clean-up/teardown step after the assert.
+A spec is an actual test that executes some code and asserts some result. A test is created using the keyword `it()` or `test()`. Similar to `describe()`, `it()` takes 2 arguments, the first being the description of the test and the second being a callback. Generally, we want to describe what the code *should* do in the description of `it()` and assert the described behavior within the test. Each test can be broken down into 3 parts (Assemble, Act, Assert) which makes up the AAA pattern. Optionally, there may be a clean-up/teardown step after the assert.
 
 Syntax:
 - ```ts
@@ -86,7 +86,7 @@ We start by adding a spec to the suite we created previously.
       describe('Calculator', () => {
 
         describe('add()', () => {
-          
+
           it('should return 2 when inputs are 1 and 1', () => {
 
             // Assemble
@@ -117,7 +117,7 @@ In our example, let us create an instance of the Calculator class as part of ass
       describe('Calculator', () => {
 
         describe('add()', () => {
-          
+
           it('should return 2 when inputs are 1 and 1', () => {
 
             const calculator: Calculator = new Calculator();
@@ -135,9 +135,9 @@ In our example, let us create an instance of the Calculator class as part of ass
 
   ```
 
-### Act 
+### Act
 
-In this step, we actually execute the function under test with required inputs and get the returned result (if any). 
+In this step, we actually execute the function under test with required inputs and get the returned result (if any).
 
 In our example, we will invoke the add() method with inputs (1, 1) and get the result.
 
@@ -148,7 +148,7 @@ In our example, we will invoke the add() method with inputs (1, 1) and get the r
       describe('Calculator', () => {
 
         describe('add()', () => {
-          
+
           it('should return 2 when inputs are 1 and 1', () => {
 
             const calculator: Calculator = new Calculator();
@@ -168,15 +168,16 @@ In our example, we will invoke the add() method with inputs (1, 1) and get the r
 
 ### Assert
 
-Assertion is a statement which validates the behaviour of our code by comparing the actual result against the expected results. There are many assertions provided by Jest and some useful assertions we will use throughout our tests. Some of these assertions are listed below:
+Assertion is a statement that validates the behavior of our code by comparing the actual result against the expected results. There are many assertions provided by Jest, including some useful assertions we will use throughout our tests. Some of these assertions are listed below:
 - `expect(actual).toEqual(expected)` // Expects both entities to have the same value.
 - `expect(actual).toBe(expected)` // Expects both entities to be the same.
 - `expect(spy/stub/mock).toHaveBeenCalled()` // Expects a function being spied/stubbed/mocked to be invoked.
 - `expect(spy/stub/mock).toHaveBeenCalledWith([arguments])` // Expects a function being spied/stubbed/mocked to be invoked with specified arguments.
 - `expect(actual).toBeDefined()` // Expects the entity to be defined.
 - `expect(actual).not.` // Negates the assertion. Can be chained with any matchers above
+- `await expect(error causing code returning a promise).rejects.toThrow('error message')` // Waits for the error throwing code that returns promise (e.g. an API call) to throw the error and asserts the error was thrown. 
 
-A full list of matchers can be found [here](https://jestjs.io/docs/en/expect)
+A full list of matchers can be found [here](https://jestjs.io/docs/en/expect).
 
 In our example, we can use the .toEqual() matcher.
 
@@ -187,7 +188,7 @@ In our example, we can use the .toEqual() matcher.
       describe('Calculator', () => {
 
         describe('add()', () => {
-          
+
           it('should return 2 when inputs are 1 and 1', () => {
 
             const calculator: Calculator = new Calculator();
@@ -207,7 +208,7 @@ In our example, we can use the .toEqual() matcher.
 
 ### .toEqual() vs .toBe() vs .toStrictEqual()
 
-All three matchers are used to test equality and have slight but important differences. To understand these differences, let us take a look at the example of Store.ts with the below code.
+All three matchers are used to test equality, though they have slight but important differences. To understand these differences, let us take a look at the example of Store.ts with the below code.
 
 - ```ts
 
@@ -227,9 +228,9 @@ All three matchers are used to test equality and have slight but important diffe
 
   ```
 
-1. .toEqual()
-  Use .toEqual to compare recursively all properties of object instances (also known as "deep" equality). It calls Object.is to compare primitive values, which is even better for testing than === strict equality operator.
-  This is the most commonly used matcher. 
+1.
+  Use .toEqual() to compare recursively all properties of object instances (also known as "deep" equality). It calls Object.is to compare primitive values, which is even better for testing than '===', the strict equality operator.
+  This is the most commonly used matcher.
 
 - ```ts
 
@@ -274,8 +275,8 @@ All three matchers are used to test equality and have slight but important diffe
 
   ```
 
-2. .toBe()
-  Use .toBe to compare primitive values or to check referential identity of object instances. It calls Object.is to compare values, which is even better for testing than === strict equality operator.
+2.
+  Use .toBe() to compare primitive values or to check referential identity of object instances. It calls Object.is to compare values, which is even better for testing than '===', the strict equality operator.
 
 - ```ts
 
@@ -293,13 +294,13 @@ All three matchers are used to test equality and have slight but important diffe
       expect(Store['_data']).toBe(mockData);
 
     });
-  
+
   });
 
   ```
 
-3. .teStrictEqual()
-  Use .toStrictEqual to test that objects have the same types as well as structure.
+3.
+  Use .toStrictEqual() to test that objects have the same types as well as structure.
   This checks for undefined in Objects and sparseness in Arrays.
    - { key: undefined } is not strictly equal to { }.
    - [ , 1] is not strictly equal to [undefined, 1].
@@ -320,12 +321,12 @@ All three matchers are used to test equality and have slight but important diffe
 
   });
 
-  
+
   ```
 
 ## Setup and Teardown
 
-Often in tests, we need some things to happen before a test actually runs and some things after it. This may include resetting/initializing values, setting up test data, setting up spies/stubs/mocks, cleaning up variables after a test, or resetting spies/stubs/mocks. Sometimes these steps may need to be repeated for each test. This is where the setup and teardown can be especially useful.
+Often in tests, we need some things to happen before a test actually runs and some things to happen after it. This may include resetting/initializing values, setting up test data, setting up spies/stubs/mocks, cleaning up variables after a test, or resetting spies/stubs/mocks. Sometimes these steps may need to be repeated for each test. This is where the setup and teardown can be especially useful.
 
 Jest Provides 2 methods for setup and 2 methods for teardown:
 - beforeAll(): Runs one time before all the tests in a suite.
@@ -333,9 +334,9 @@ Jest Provides 2 methods for setup and 2 methods for teardown:
 - afterEach(): Runs after every test in a suite.
 - afterAll(): Runs once after all tests in a suite.
 
-In our example, notice we created an instance of calculator in our Assemble phase. We will probably have multiple tests for the calculator which will require this instance. In order to avoid repeating this in every step, let us move this to the setup phase and add a teardown to clear this after all tests.
+In our example, notice we created an instance of calculator in our Assemble phase. We will probably have multiple tests for the calculator that will require this instance. In order to avoid repeating this in every step, let us move this to the setup phase and add a teardown to clear this after all tests.
 
-*Note:* Use beforeEach()/afterEach() if the function/class stores state and we need a clean instance for each test. In our case, calculator does not store any state, and we can share the same instance across tests with out any side effects. Hence, we will use beforeAll()/afterAll().
+*Note:* Use beforeEach()/afterEach() if the function/class stores state, and we need a clean instance for each test. In our case, calculator does not store any state, and we can share the same instance across tests with out any side effects. Hence, we will use beforeAll()/afterAll().
 
 - ```ts
     import Calculator from './calculator';
@@ -416,11 +417,11 @@ Let us add another test to cover a different scenario, such as adding negative n
 
 # Spies, Stubs, and Mocks
 
-As a project grows, so do the interdependencies in the project. A function under test can have dependencies from various external entities. This may include other functions, network requests, database connections, or built-in connections. Spies, Stubs, and Mocks are ways of dealing with such external dependencies. You can read more on what you can do with spies/stubs/mocks [here](https://jestjs.io/docs/en/mock-function-api)
+As a project grows so do the interdependencies in the project. A function under test can have dependencies from various external entities. This may include other functions, network requests, database connections, or built-in connections. Spies, Stubs, and Mocks are ways of dealing with such external dependencies. You can read more on what you can do with spies/stubs/mocks [here](https://jestjs.io/docs/en/mock-function-api).
 
 ## Spy
 
-A spy is a watcher on a function which tracks various properties of the function being spied on. This can return information such as whether a function was invoked, how many times it was invoked, and what argument it was invoked with. A spy on a function is created using the syntax `const spy = jest.spyOn(object, 'methodName');` 
+A spy is a watcher on a function that tracks various properties of the function being spied on. This can return information such as whether a function was invoked, how many times it was invoked, and what argument it was invoked with. A spy on a function is created using the syntax `const spy = jest.spyOn(object, 'methodName');`
 
 *Note:* The function being spied on actually executes.
 
@@ -496,7 +497,7 @@ In our example, if we wanted to replace the behavior of console.log(), we can do
 
 ## Stub
 
-A stub is a special kind of mock which does not require an alternate implementation, but instead returns some value which we specify. When a stub gets invoked, it does not invoke the actual function, but returns the desired value instead. The syntax is as below: 
+A stub is a special kind of mock which does not require an alternate implementation but instead returns some value that we specify. When a stub gets invoked, it does not invoke the actual function, but returns the desired value instead. The syntax is as below:
 - ```ts
     spy.mockReturnValue(someValue);
   ```
@@ -507,7 +508,7 @@ To return a promise, we can use:
   ```
 This can be especially handy when stubbing Axios requests.
 
-Using a stub in our example simply prevents console.log() from being executed since it does not return a value anyway.
+Using a stub in our example simply prevents console.log() from being executed, since it does not return a value anyway.
 - ```ts
     it('should invoke console.log() with the result 2 for inputs 1 and 1', () => {
 
@@ -525,7 +526,7 @@ Using a stub in our example simply prevents console.log() from being executed si
 
 # Handling Timers
 
-There are many instances where we use timer related functions such as setTimeout() and setInterval(), which can be difficult to test since they rely on actual passage of time. Similarly, we may use new Date() in our code to get the current date, the value of which would change every second and is not ideal for testing. To deal with these issues, jest provides us with fake timers.
+There are many instances where we use timer related functions such as setTimeout() and setInterval(), which can be difficult to test because they rely on actual passage of time. Similarly, we may use new Date() in our code to get the current date, the value of which would change every second and therefore is not ideal for testing. To deal with these issues, jest provides us with fake timers.
 
 Let us assume we have to check if a function was called by a setTimeout as shown below:
 
@@ -549,7 +550,7 @@ Let us assume we have to check if a function was called by a setTimeout as shown
 
   ```
 
-Although not recommended, let us use this example to check how we can test private methods if required. This can be handy if public functions just call through and all logic is contained within the private method. We can do this as shown below:
+Although not recommended, let us use this example to check how we can test private methods if required. This can be handy if public functions just call through, and all logic is contained within the private method. We can do this as shown below:
 
 - ```ts
 
@@ -601,11 +602,11 @@ Although not recommended, let us use this example to check how we can test priva
 
             const logStub = jest.spyOn(console, 'log').mockReturnValue();
 
-            timerUtil['callback'](); // Using array syntax preserves type information 
+            timerUtil['callback'](); // Using array syntax preserves type information
                                      // without complaining about property access violation.
 
             expect(logStub).toHaveBeenCalledWith('callback invoked');
-          
+
             logStub.mockRestore();
 
           });
@@ -675,23 +676,23 @@ We can test the above code as follows:
       it('should invoke axios.get() with "myUrl"', async () => {
 
         const getStub = jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: {} });
-  
+
         await httpService.getData();
-  
+
         expect(getStub).toHaveBeenCalledWith('/myUrl');
-  
+
       });
-  
+
       it('should return the status as 200', async () => {
-  
+
         const getStub = jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: {} });
-  
+
         const response = await httpService.getData();
-  
+
         expect(response.status).toEqual(200);
-  
+
         getStub.mockRestore();
-  
+
       });
 
     });
@@ -700,7 +701,7 @@ We can test the above code as follows:
 
 *Note:* You can return different values for subsequent calls to a stub.
 
-Ocassionally, you may run into situations where an http request is made but no promise is returned. This is often found in cases on "fire and forget" calls, or a central store with an Observable pattern implementation (Redux with react). We cannot await a function which does not return a promise. However, we can use fake timers to simulate passage of time to test such asynchronous behaviour. Consider the example below:
+Occasionally, you may run into situations where an http request is made but no promise is returned. This is often found in cases involving "fire and forget" calls or a central store with an Observable pattern implementation (e.g. Redux with react). We cannot await a function that does not return a promise. However, we can use fake timers to simulate passage of time to test such asynchronous behavior. Consider the example below:
 
 - ```ts
 
@@ -733,29 +734,29 @@ We can test the above functionality as follows:
       it('should invoke axios.get() with "myUrl"', async () => {
 
         const getStub = jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: {} });
-  
+
         await httpService.getDataAndSetStore();
-  
+
         expect(getStub).toHaveBeenCalledWith('/myUrl');
-  
+
       });
-  
+
       it('should set the data in store', async () => {
 
         const addDataStub = jest.spyOn(Store, 'setData').mockImplementation();
         const getStub = jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: 'myData' });
         jest.useFakeTimers();
-  
+
         httpService.getDataAndSetStore();
         jest.runAllTimers();
         await Promise.resolve();
-  
+
         expect(addDataStub).toHaveBeenCalledWith('myData');
-  
+
         addDataStub.mockRestore();
         getStub.mockRestore();
         jest.useRealTimers();
-  
+
       });
 
     });
@@ -767,9 +768,9 @@ We can test the above functionality as follows:
 1. Write tests based on the expected behavior, not based on the interpretation/implementation of it.
 2. Test assertion (expect) should match the test description.
 3. Each spec should test only 1 thing (preferably with 1 assertion per test).
-4. Organize tests using suites (Each method having it's own suite).
+4. Organize tests using suites (i.e. each method has it's own suite).
 5. Use setup and teardown functions to reduce code duplicity.
-6. Code duplicity in tests is preferred over complicated logic to reduce it. 
+6. Code duplicity in tests is preferred over complicated logic to reduce it.
    - If your tests need tests, they have no value.
 7. Cover the happy path for your code first.
    - Follow up with edge cases.
@@ -779,4 +780,3 @@ We can test the above functionality as follows:
 9. If large test data is being used, ensure clean-up after tests to prevent memory leaks.
 10. Code coverage is a deceptive measure. 100% coverage does not mean 100% tested code.
 11. A well designed test suite improves the quality and reliability of code.
-12. A well designed test suite can serve as code documentation.
