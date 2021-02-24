@@ -5,7 +5,7 @@ permalink: /tutorials/week5-unit-testing
 parent: Tutorials
 nav_order: 1
 ---
-This tutorial covers the basics on unit testing with Jest. By the end of this tutorial, you will have an introduction to unit testing with jest, best practices, and some handy tricks and tips to use in your tests. 
+This tutorial covers the basics on unit testing with Jest. By the end of this tutorial, you will have an introduction to unit testing with jest, best practices, and some handy tricks and tips to use in your tests. All code and tests covered in this tutorial can be found [here](./assets/week5-unit-tests/week5-unit-tests.zip), however, we stronly recommend using the tests only for reference and implementing the tutorial step by step.
 
 Contents:
 * [Unit Testing Basics](#unit-testing-basics)
@@ -20,7 +20,7 @@ To understand the basics of unit testing, let us assume we have a file called ca
 - ```ts
     // Contents of src/services/math/calculator.ts
 
-    export class Calculator {
+    export default class Calculator {
 
       public add(num1: number, num2: number): number {
         const result: number = num1 + num2;
@@ -203,6 +203,124 @@ In our example, we can use the .toEqual() matcher.
       });
     });
 
+  ```
+
+### .toEqual() vs .toBe() vs .toStrictEqual()
+
+All three matchers are used to test equality and have slight but important differences. To understand these differences, let us take a look at the example of Store.ts with the below code.
+
+- ```ts
+
+  export default class Store {
+
+    private static _data: any = null;
+
+    public static getData(): any {
+      return Store._data;
+    }
+
+    public static setData(data: any): void {
+      Store._data = data;
+    }
+
+  }
+
+  ```
+
+1. .toEqual()
+  Use .toEqual to compare recursively all properties of object instances (also known as "deep" equality). It calls Object.is to compare primitive values, which is even better for testing than === strict equality operator.
+  This is the most commonly used matcher. 
+
+- ```ts
+
+  describe('utils > store', () => {
+    describe('Store', () => {
+
+      beforeEach(() => {
+        Store['_data'] = undefined;
+      });
+
+      describe('setData()', () => {
+
+        it('should assign the input data to Store._data', () => {
+
+          const mockData = { key: 'value' };
+
+          Store.setData(mockData);
+
+          expect(Store['_data']).toEqual(mockData);
+
+        });
+
+      });
+
+      describe('getData()', () => {
+
+        it('should return an object equal to Store._data', () => {
+
+          const mockData = { key: 'value' };
+          Store['_data'] = mockData;
+
+          const returnedValue = Store.getData();
+
+          expect(returnedValue).toEqual(mockData);
+
+        });
+
+      });
+
+    });
+  });
+
+  ```
+
+2. .toBe()
+  Use .toBe to compare primitive values or to check referential identity of object instances. It calls Object.is to compare values, which is even better for testing than === strict equality operator.
+
+- ```ts
+
+  describe('getData()', () => {
+
+    it('should return an object with a reference different to Store._data', () => {
+
+      const mockData = { key: 'value' };
+      Store['_data'] = mockData;
+
+      const returnedValue = Store.getData();
+
+      expect(returnedValue).toEqual(mockData);
+      expect(returnedValue).not.toBe(mockData);
+      expect(Store['_data']).toBe(mockData);
+
+    });
+  
+  });
+
+  ```
+
+3. .teStrictEqual()
+  Use .toStrictEqual to test that objects have the same types as well as structure.
+  This checks for undefined in Objects and sparseness in Arrays.
+   - { key: undefined } is not strictly equal to { }.
+   - [ , 1] is not strictly equal to [undefined, 1].
+
+- ```ts
+
+  it('should return an object strictly equal to object stored in Store._data', () => {
+
+    const mockData = { key: 'value' };
+    const mockDataWithUndefined = { key: 'value', key2: undefined };
+    Store['_data'] = mockData;
+
+    const returnedValue = Store.getData();
+
+    expect(returnedValue).toStrictEqual(mockData);
+    expect(returnedValue).toEqual(mockDataWithUndefined);
+    expect(returnedValue).not.toStrictEqual(mockDataWithUndefined);
+
+  });
+
+  
   ```
 
 ## Setup and Teardown
@@ -413,14 +531,18 @@ Let us assume we have to check if a function was called by a setTimeout as shown
 
 - ```ts
 
-    class FakeTimersExample {
+    export default class TimerUtil {
 
-      public runTimer() {
+      public getCurrentDate(): Date {
+        return new Date();
+      }
+
+      public runTimer(): void {
         setTimeout(this.callback, 1000);
       }
 
-      private callback() {
-        // does something
+      private callback(): void {
+        console.log('callback invoked');
       }
 
     }
@@ -431,55 +553,67 @@ Although not recommended, let us use this example to check how we can test priva
 
 - ```ts
 
-    describe('FakeTimersExample', () => {
+    describe('utils > timer', () => {
+      describe('TimerUtil', () => {
 
-      const fakeTimersExample;
+        let timerUtil: TimerUtil;
 
-      beforeAll(() => {
-        fakeTimersExample = new FakeTimersExample();
+        beforeAll(() => {
+          timerUtil = new TimerUtil();
+        });
+
+        afterAll(() => {
+          (<any>timerUtil) = undefined;
+        });
+
+        describe('runTimer()', () => {
+
+          beforeEach(() => {
+            jest.useFakeTimers(); // Mocks all timers
+          });
+
+          afterEach(() => {
+            jest.runOnlyPendingTimers(); // Runs any pending timers to completion.
+            jest.useRealTimers(); // Restores the timers.
+          });
+
+          it('should invoke the callback after 1 sec', () => {
+
+            const callbackStub = jest.spyOn(<any>timerUtil, 'callback').mockImplementation();
+
+            timerUtil.runTimer();
+            expect(callbackStub).not.toHaveBeenCalled();
+
+            jest.advanceTimersByTime(1000); // Simulates passage of 1 sec.
+            // jest.runAllTimers(); // Runs all timers to completion. Can be used instead of above statement.
+
+            expect(callbackStub).toHaveBeenCalled();
+
+            callbackStub.mockRestore();
+
+          });
+
+        });
+
+        describe('[private] callback()', () => {
+
+          it('should do something', () => {
+
+            const logStub = jest.spyOn(console, 'log').mockReturnValue();
+
+            timerUtil['callback'](); // Using array syntax preserves type information 
+                                     // without complaining about property access violation.
+
+            expect(logStub).toHaveBeenCalledWith('callback invoked');
+          
+            logStub.mockRestore();
+
+          });
+
+        });
+
+
       });
-
-      describe('runTimer()', () => {
-
-        beforeEach(() => {
-          jest.useFakeTimers(); // Mocks all timers
-        });
-
-        afterEach(() => {
-          jest.runOnlyPendingTimers(); // Runs any pending timers to completion.
-          jest.useRealTimers(); // Restores the timers.
-        });
-
-        it('should invoke the callback after 1 sec', () => {
-
-          const callbackStub = jest.spyOn(<any>fakeTimersExample, 'callback').mockImplementation();
-
-          fakeTimersExample.runTimer();
-          expect(callbackStub).not.toHaveBeenCalled();
-
-          jest.advanceTimersByTime(1000); // Simulates passage of 1 sec.
-          // jest.runAllTimers(); // Runs all timers to completion. Can be used instead of above statement.
-
-          expect(callbackStub).toHaveBeenCalled();
-
-        });
-
-      });
-
-      describe('[private] callback()', () => {
-
-        it('should do something', () => {
-
-          fakeTimersExample['callback'](); // Using array syntax preserves type information 
-                                           // without complaining about property access violation.
-
-          // expect what we expect it to do.
-
-        });
-
-      });
-
-
     });
 
   ```
@@ -488,7 +622,7 @@ Another important aspect of Fake Timers is mocking the Date object in JavaScript
 
 - ```ts
 
-    describe('SomethingWhichCallsNewDate()', () => {
+    describe('getCurrentDate()', () => {
 
       beforeEach(() => {
         jest.useFakeTimers('modern');
@@ -501,7 +635,9 @@ Another important aspect of Fake Timers is mocking the Date object in JavaScript
 
       it('Should return current date as Feb 20th, 2021', () => {
 
-        expect(new Date()).toEqual(new Date('2021-02-20'));
+        const currentDate: Date = timerUtil.getCurrentDate();
+
+        expect(currentDate).toEqual(new Date('2021-02-20'));
 
       });
 
@@ -515,9 +651,12 @@ In previous tutorials, we have used Axios to make http requests which return pro
 
 - ```ts
 
-    class HttpService {
+    import axios from 'axios';
+    import Store from '../../utils/store/store';
 
-      getData(): Promise<any> {
+    export default class HttpService {
+
+      public getData(): Promise<any> {
         return axios.get('/myUrl');
       }
 
@@ -531,25 +670,29 @@ We can test the above code as follows:
 
     // Assuming we have done the setup as in previous tests
 
-    it('should invoke axios.get() with "myUrl"', () => {
+    describe('getData()', () => {
 
-      const getSpy = jest.spyOn(axios, 'get').mockResolvedValue({status: 200, data: {}});
+      it('should invoke axios.get() with "myUrl"', async () => {
 
-      const response = await httpService.getData();
-
-      expect(getSpy).toHaveBeenCalledWith('myUrl');
-
-    });
-
-    it('should return the status as 200', async () => {
-
-      const getStub = jest.spyOn(axios, 'get').mockResolvedValue({status: 200, data: {}});
-
-      const response = await httpService.getData();
-
-      expect(response.status).toEqual(200);
-
-      getStub.mockRestore();
+        const getStub = jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: {} });
+  
+        await httpService.getData();
+  
+        expect(getStub).toHaveBeenCalledWith('/myUrl');
+  
+      });
+  
+      it('should return the status as 200', async () => {
+  
+        const getStub = jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: {} });
+  
+        const response = await httpService.getData();
+  
+        expect(response.status).toEqual(200);
+  
+        getStub.mockRestore();
+  
+      });
 
     });
 
@@ -561,12 +704,19 @@ Ocassionally, you may run into situations where an http request is made but no p
 
 - ```ts
 
-    class HttpService {
+    import axios from 'axios';
+    import Store from '../../utils/store/store';
 
-      getData(): any {
+    export default class HttpService {
+
+      public getData(): Promise<any> {
+        return axios.get('/myUrl');
+      }
+
+      public getDataAndSetStore(): void {
         axios.get('/myUrl')
           .then((res) => {
-            Store.addData(data);
+            Store.setData(res.data);
           });
       }
 
@@ -578,21 +728,35 @@ We can test the above functionality as follows:
 
 - ```ts
 
-    it('should set the data in store', async () => {
+    describe('getDataAndSetStore()', () => {
 
-      const addDataStub = jest.spyOn(Store, 'addData').mockImplementation();
-      const getStub = jest.spyOn(axios, 'get').mockResolvedValue({status: 200, data: {}});
-      jest.useFakeTimers();
+      it('should invoke axios.get() with "myUrl"', async () => {
 
-      httpService.getData();
-      jest.runAllTimers();
-      await Promise.resolve();
+        const getStub = jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: {} });
+  
+        await httpService.getDataAndSetStore();
+  
+        expect(getStub).toHaveBeenCalledWith('/myUrl');
+  
+      });
+  
+      it('should set the data in store', async () => {
 
-      expect(addDataStub).toHaveBeenCalledWith({});
-
-      addDataStub.mockRestore();
-      getStub.mockRestore();
-      jest.useRealTimers();
+        const addDataStub = jest.spyOn(Store, 'setData').mockImplementation();
+        const getStub = jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: 'myData' });
+        jest.useFakeTimers();
+  
+        httpService.getDataAndSetStore();
+        jest.runAllTimers();
+        await Promise.resolve();
+  
+        expect(addDataStub).toHaveBeenCalledWith('myData');
+  
+        addDataStub.mockRestore();
+        getStub.mockRestore();
+        jest.useRealTimers();
+  
+      });
 
     });
 
